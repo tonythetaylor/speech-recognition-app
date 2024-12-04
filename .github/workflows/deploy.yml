@@ -24,12 +24,12 @@ jobs:
       # Step 3: Copy Application Files to EC2
       - name: Copy Application Files to EC2
         run: |
-          scp -r -o StrictHostKeyChecking=no ./* ec2-user@${{ secrets.EC2_HOST }}:~/speech-recognition-app/
+          scp -r -o StrictHostKeyChecking=no ./* ubuntu@${{ secrets.EC2_HOST }}:~/speech-recognition-app/
 
       # Step 4: Run Deployment Commands on EC2
       - name: Deploy Application on EC2
         run: |
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_HOST }} << EOF
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} << EOF
             cd ~/speech-recognition-app/
             docker-compose down
             docker-compose pull

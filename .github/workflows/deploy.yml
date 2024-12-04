@@ -24,6 +24,7 @@ jobs:
       # Step 3: Copy Application Files to EC2
       - name: Copy Application Files to EC2
         run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_HOST }} "mkdir -p ~/speech-recognition-app/"
           scp -r -o StrictHostKeyChecking=no ./* ubuntu@${{ secrets.EC2_HOST }}:~/speech-recognition-app/
 
       # Step 4: Run Deployment Commands on EC2

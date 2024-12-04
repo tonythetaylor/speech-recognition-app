@@ -1,0 +1,31 @@
+name: Deploy to EC2 (Ubuntu)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Log in to Docker Hub
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+    - name: Build and Push Docker Images
+      run: |
+        docker build -t tonythetaylor/speech-recognition-app:latest .
+        docker push tonythetaylor/speech-recognition-app:latest
+
+    - name: Deploy Application
+      run: |
+        cd ~/app/
+        docker-compose down
+        docker-compose pull
+        docker-compose up -d

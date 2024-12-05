@@ -10,7 +10,7 @@ const App: React.FC = () => {
           Speech Recognition App
         </h1>
         <p className="text-lg text-gray-700 mt-2">
-          Speak the word displayed to interact with the app.
+          Press "Start" and then speak the word displayed to interact with the app.
         </p>
       </header>
 

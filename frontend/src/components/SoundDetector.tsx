@@ -10,6 +10,11 @@ const SoundDetector: React.FC = () => {
   const [recognizing, setRecognizing] = useState<boolean>(false);
   const [wordList, setWordList] = useState<{ word: string }[]>([]);
   const [unrecognizedWords, setUnrecognizedWords] = useState<string[]>([]);
+  const [recognizedOpen, setRecognizedOpen] = useState(true);
+  const [unrecognizedOpen, setUnrecognizedOpen] = useState(false);
+  const [recognizedWordCount, setRecognizedWordCount] = useState(0);
+  const [unrecognizedWordCount, setUnrecognizedWordCount] = useState(0);
+
   const [recognizedWords, setRecognizedWords] = useState<Set<string>>(
     new Set()
   );
@@ -35,6 +40,20 @@ const SoundDetector: React.FC = () => {
       setShowWarning(false);
     }
   }, [timer]);
+
+  // const addRecognizedWord = (newWord: string) => {
+  //   if (!recognizedWords.includes(newWord)) {
+  //     setRecognizedWords((prev): any[] => [...prev, newWord]);
+  //     setRecognizedWordCount((prevCount) => prevCount + 1);
+  //   }
+  // };
+
+  // const addUnRecognizedWord = (newWord: string) => {
+  //   if (!recognizedWords.includes(newWord)) {
+  //     setRecognizedWords((prev) => [...prev, newWord]);
+  //     setRecognizedWordCount((prevCount) => prevCount + 1);
+  //   }
+  // };
 
   const isValidMode = (
     value: string
@@ -370,87 +389,106 @@ const SoundDetector: React.FC = () => {
   return (
     <div className="relative flex flex-col h-screen px-4">
   {/* Top Content */}
-  <div className="flex flex-col md:flex-row items-start md:justify-between mb-6 space-y-4 md:space-y-0">
-    {/* Buttons */}
-    <div className="flex flex-col space-y-4">
-      <div className="flex flex-wrap space-x-2 md:space-x-4">
-        <button
-          className={`px-4 py-2 rounded ${
-            selectedModes.has("letter")
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
-          onClick={() => toggleMode("letter")}
-        >
-          Letters
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${
-            selectedModes.has("number")
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
-          }`}
-          onClick={() => toggleMode("number")}
-        >
-          Numbers
-        </button>
-        <button
-          className={`px-4 py-2 rounded ${
-            selectedModes.has("word") ? "bg-blue-500 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => toggleMode("word")}
-        >
-          Words
-        </button>
-      </div>
-      <div className="flex flex-wrap space-x-2 md:space-x-4 mt-4">
-        <button
-          onClick={startListening}
-          className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-400"
-          disabled={recognizing}
-        >
-          {recognizing ? "Listening..." : "Start Listening"}
-        </button>
-        <button
-          onClick={resetHandler}
-          className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-red-400"
-        >
-          Reset
-        </button>
-      </div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center md:items-start mb-6">
+  {/* Buttons */}
+  <div className="flex flex-col space-y-4">
+    {/* Mode Buttons */}
+    <div className="flex flex-wrap gap-2">
+      <button
+        className={`px-4 py-2 rounded ${
+          selectedModes.has("letter")
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200"
+        }`}
+        onClick={() => toggleMode("letter")}
+      >
+        Letters
+      </button>
+      <button
+        className={`px-4 py-2 rounded ${
+          selectedModes.has("number")
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200"
+        }`}
+        onClick={() => toggleMode("number")}
+      >
+        Numbers
+      </button>
+      <button
+        className={`px-4 py-2 rounded ${
+          selectedModes.has("word") ? "bg-blue-500 text-white" : "bg-gray-200"
+        }`}
+        onClick={() => toggleMode("word")}
+      >
+        Words
+      </button>
     </div>
-
-    {/* Current Word */}
-    <div className="mt-6 md:mt-0 md:ml-6 flex flex-col items-center">
-      <p className="text-gray-600 text-lg">Current Word:</p>
-      <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-600 mt-2">
-        {wordList[currentWordIndex]?.word || "Loading..."}
-      </div>
+    {/* Action Buttons */}
+    <div className="flex flex-wrap gap-2 mt-4">
+      <button
+        onClick={startListening}
+        className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-blue-400 text-center sm:text-sm"
+        disabled={recognizing}
+      >
+        {recognizing ? "Listening..." : "Start Listening"}
+      </button>
+      <button
+        onClick={resetHandler}
+        className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-red-400"
+      >
+        Reset/Stop
+      </button>
     </div>
   </div>
+
+  {/* Current Word */}
+  <div className="flex flex-col items-center md:items-start md:justify-center">
+    <p className="text-gray-600 text-lg text-center md:text-left">Current Word:</p>
+    <div className="text-4xl sm:text-5xl lg:text-6xl font-bold text-blue-600 mt-2 text-center md:text-left">
+      {wordList[currentWordIndex]?.word || "Loading..."}
+    </div>
+  </div>
+</div>
 
   {/* Main Content */}
-  <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden">
-    {/* Recognized Words */}
-    <div className="flex-1 bg-white p-6 rounded-lg shadow-lg h-[40vh] md:h-auto overflow-y-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Recognized Words
-      </h2>
-      <RecognizedWords recognizedWords={words} />
-    </div>
+  <div className="relative flex flex-col h-screen px-4">
+  <div className="flex-1 flex flex-col space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+        {/* Recognized Words - Accordion */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <button
+            className="w-full text-left px-6 py-4 bg-blue-500 text-white font-bold hover:bg-blue-400 focus:outline-none"
+            onClick={() => setRecognizedOpen(!recognizedOpen)}
+          >
+            Recognized Words
+          </button>
+          {recognizedOpen && (
+            <div className="p-6 overflow-y-auto max-h-[30vh]">
+              <RecognizedWords recognizedWords={words} />
+            </div>
+          )}
+        </div>
 
-    {/* Unrecognized Words */}
-    <div className="flex-1 bg-white p-6 rounded-lg shadow-lg h-[40vh] md:h-auto overflow-y-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">
-        Unrecognized Words
-      </h2>
-      <UnrecognizedWords unrecognizedWords={unrecognizedWords} />
-    </div>
-  </div>
+        {/* Unrecognized Words - Accordion */}
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          <button
+            className="w-full text-left px-6 py-4 bg-red-500 text-white font-bold hover:bg-red-400 focus:outline-none"
+            onClick={() => setUnrecognizedOpen(!unrecognizedOpen)}
+          >
+            Unrecognized Words
+          </button>
+          
+          {unrecognizedOpen && (
+            <div className="p-6 overflow-y-auto max-h-[30vh]">
+              <UnrecognizedWords unrecognizedWords={unrecognizedWords} />
+            </div>
+          )}
+        </div>
+      </div>
+      </div>
 
   {/* Overlay Warning */}
   {showWarning && (
-    <div className="absolute inset-0 bg-zinc-800 bg-opacity-70 flex flex-col items-center justify-center z-20">
+    <div className="absolute inset-0 bg-zinc-800 bg-opacity-70 flex flex-col items-center justify-center z-20 sm:px-4">
       <div
         className="text-center text-6xl sm:text-5xl lg:text-7xl font-extrabold text-white animate-bounce"
         style={{ animation: "grow-burst 1s ease-in-out" }}
